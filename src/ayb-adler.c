@@ -15,8 +15,8 @@ DESCRIP: Alder32 Redux.
 
     uint32_t sum = x1*1 + x2*2 + x3*3 + ... + xn*n
 
-  Adler32's advantage is that it is extremely fast to compute. But it has the
-  following 3 fundamental flaws:
+  Adler32's advantage is that it is extremely fast to compute, and it is order
+  dependent. But it has the following 3 fundamental flaws:
 
   1. For short messages, less than 4K bytes, its bit spread/coverage is
       extremely poor, i.e. the sum that is computes does not use up all the
@@ -65,7 +65,7 @@ NAMING CONVENTION:
   In order not to conflict with the namespace of the famous cryptographer,
   Daniel J. Bernstein, whose algorithm names typically start with djb or djbern,
   I have chosen the prefix "AYBern".
-DATE: 2017-05-22T12:20:00Z
+DATE: 2017-05-22T18:46:00Z
 AUTHOR: Avraham DOT Bernstein AT gmail
 COPYRIGHT (c) 2017 Avraham Bernstein, Jerusalem ISRAEL. All rights reserved.
 LICENSE: Apache License, Version 2.0: https://opensource.org/licenses/Apache-2.0
@@ -79,7 +79,7 @@ LICENSE: Apache License, Version 2.0: https://opensource.org/licenses/Apache-2.0
   If you would like me to provide you with an industrial strength version with
   a commercial guarantee then please contact me.
 REVISIONS:
-2017-05-22: 1.0.0: AB: orig
+2017-05-22: 1.0.0: AB: new
 */
 
 #include <stdint.h>
@@ -234,8 +234,13 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
   uint32_t last_block_len = n & (block_len-1);
   if (last_block_len) ++n_blocks;
 
+  // GOTCHYA: since our block sizes are 2^N by design, when we report that the
+  // last_block_len is zero, in fact it means that it is full size,
+  // i.e. block_len !
+
   const uint32_t lcg_c = 1013904223; // Numerical Recipes lcg32 prime > max(lcg_a)
   uint32_t lcg_a = 1;
+  // all blocks except the last, are by definition full size so their lcg_a = 1
   uint32_t last_lcg_a = lcg_a;
   if (last_block_len) {
     last_lcg_a = (1 << shift)/(last_block_len * (last_block_len + 1));
@@ -253,7 +258,7 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
         len = last_block_len;
         lcg_a = last_lcg_a;
       }
-    }
+    } // otherwise it is a full size block
 
     uint32_t adler_sum = 0;
 
@@ -261,7 +266,7 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
         adler_sum += (i+1) * msg[i+k];
     }
 
-    // lcg
+    // lcg: params selected to evenly spread the bits over the whole 2^32 space
 
     uint32_t lcg = lcg_c;
     if (lcg_a == 1) {
@@ -270,11 +275,11 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
         lcg += adler_sum * lcg_a;
     }
 
-    // block chain
+    // block chain with order dependencies
 
     hash_code ^= (j & 1) ? ~lcg : lcg;
 
-    // mix
+    // mix: "roll my own" mixer because SplitMix doesn't handle 32 bits
 
     // 1. Gray xform
 
@@ -285,8 +290,8 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
     uint16_t lo = hash_code & 0xffff;
     uint16_t hi = hash_code >> 16;
 
-    uint16_t lo_shift = (hi + (uint16_t)j) & 0xf;
-    uint16_t hi_shift = (lo + (uint16_t)~j) & 0xf;
+    uint16_t lo_shift = (hi + (uint16_t)j) & 0xf; // order dependencies
+    uint16_t hi_shift = (lo + (uint16_t)~j) & 0xf; // order dependencies
 
     hi = rotl16(hi, (int16_t)hi_shift);
     lo = rotl16(lo, (int16_t)lo_shift);
@@ -312,9 +317,14 @@ uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n)
   uint32_t last_block_len = n & (block_len-1);
   if (last_block_len) ++n_blocks;
 
+  // GOTCHYA: since our block sizes are 2^N by design, when we report that the
+  // last_block_len is zero, in fact it means that it is full size,
+  // i.e. block_len !
+
   const uint64_t lcg_c = UINT64_C(1442695040888963407); // Knuth lcg64. It is not prime
   uint64_t lcg_a = 1;
   uint64_t last_lcg_a = lcg_a;
+  // all blocks except the last, are by definition full size so their lcg_a = 1
   if (last_block_len) {
     last_lcg_a = (UINT64_C(1) << shift)/((uint64_t)last_block_len * (last_block_len + 1));
     // Satisfy Hull-Dobell constraint
@@ -331,7 +341,7 @@ uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n)
         len = last_block_len;
         lcg_a = last_lcg_a;
       }
-    }
+    } // otherwise it is a full size block
 
     uint64_t adler_sum = 0;
 
@@ -339,7 +349,7 @@ uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n)
       adler_sum += (uint64_t)(i+1) * (uint64_t)msg[i+k];
     }
 
-    // lcg
+    // lcg: params selected to evenly spread the bits over the whole 2^64 space
 
     uint64_t lcg = lcg_c;
     if (lcg_a == UINT64_C(1)) {
@@ -348,13 +358,13 @@ uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n)
         lcg += adler_sum * lcg_a;
     }
 
-    // block chain
+    // block chain with order dependencies
 
     hash_code ^= lcg;
 
-    // mix
+    // mix: SplitMix is a fanatastic mixer - without being heavy
 
-    hash_code = SplitMix_next(hash_code + (uint64_t)j);
+    hash_code = SplitMix_next(hash_code + (uint64_t)j); // order dependency
   }
 
   return hash_code;
