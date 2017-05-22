@@ -1,6 +1,6 @@
 # README.md: Alder32 Redux Project
 
-This C project is my tweak of the original [Adler32](https://en.wikipedia.org/wiki/Adler-32)
+This C mini-project is my tweak of the original [Adler32](https://en.wikipedia.org/wiki/Adler-32)
 hash sum algorithm invented by Mark Adler in 1995.
 Even though Alder32 is still commonly (?) used,
 it has absolutely ZERO cryptographic strength!
@@ -78,7 +78,7 @@ I have chosen the prefix "AYBern", and sometimes "ayb".
 ## --
 <address>
 <br>AUTHOR: Avraham DOT Bernstein AT gmail
-<br>DATE: 2017-05-22T12:02:00Z
+<br>DATE: 2017-05-22T12:05:00Z
 <br>Copyright (c) Avraham Bernstein, Jerusalem ISRAEL. All rights reserved.
 <br>LICENSE: Apache License, Version 2.0: https://opensource.org/licenses/Apache-2.0
 </address>
