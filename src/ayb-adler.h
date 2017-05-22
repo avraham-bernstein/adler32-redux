@@ -23,12 +23,12 @@ REVISIONS:
 2017-05-22: 1.0.0: AB: new
 */
 
-uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
-GCC_ATTRIB(nothrow,nonnull,pure);
+GCC_ATTRIB(nothrow,nonnull,pure)
+uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n);
 
-uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n)
-GCC_ATTRIB(nothrow,nonnull,pure);
+GCC_ATTRIB(nothrow,nonnull,pure)
+uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n);
 
+GCC_ATTRIB(nothrow,nonnull,pure)
 uint64_t AYBern_adlerHashCipherXorshift128_64(const uint32_t * msg, uint32_t n,
-    const uint64_t iv[2], uint64_t seed)
-GCC_ATTRIB(nothrow,nonnull,pure);
+    const uint64_t iv[2], uint64_t seed);
