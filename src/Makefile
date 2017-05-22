@@ -1,8 +1,8 @@
 ################################################################################
 # FILE: Makefile
-# DESCRIP: Makefile for the Adler32-Redux project.
+# DESCRIP: Makefile for the Adler32 project.
 # TEST ENV: Ubuntu 16.04, gcc/clang
-# DATE: 2017-05-22T11:37:00Z
+# DATE: 2017-05-22T12:20:00Z
 # AUTHOR: Avraham DOT Bernstein AT gmail
 # COPYRIGHT (c) 2017 Avraham Bernstein, Jerusalem ISRAEL. All rights reserved.
 #UTHOR: Avraham DOT Bernstein AT gmail
@@ -62,5 +62,8 @@ clean:
 %.o : %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-$(MAIN) : ayb-adler.c
-	$(CC) $(CFLAGS) -o $@ -DTEST $^
+ayb-adler.o : ayb-adler.c ayb-adler.h
+
+$(MAIN) : ayb-adler.c ayb-adler.h
+	$(CC) $(CFLAGS) -o $@ -DTEST $<
+
