@@ -1,4 +1,4 @@
-# README.md: Alder32 Redux Project
+# README: Alder32 Redux Project
 
 Implementation Status: working POC
 
@@ -149,7 +149,7 @@ I have chosen the prefix "AYBern", and sometimes "ayb".
 ## --
 <address>
 <br>AUTHOR: Avraham DOT Bernstein AT gmail
-<br>DATE: 2017-05-22T20:45:00Z
+<br>DATE: 2017-05-22T21:29:00Z
 <br>Copyright (c) Avraham Bernstein, Jerusalem ISRAEL. All rights reserved.
 <br>LICENSE: Apache License, Version 2.0: https://opensource.org/licenses/Apache-2.0
 </address>
