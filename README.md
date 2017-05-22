@@ -112,7 +112,7 @@ can be calculated as follows:
 ```
 
 For algorithmic simplicity (in order to use bit masking techniques), we will
-define the ideal block size at 2^13 bytes.
+define the ideal block size as 2^13 bytes.
 
 
 In the case where the block size n < 2^13, we need to find a Kn that will
@@ -127,7 +127,7 @@ This reduces to:
 Kn <= (1 << 27) / (n*(n+1))
 ```
 
-In order to not lose any bit precision during the multiplication process, Kn
+In order to not "lose" any bits during the multiplication process, Kn
 should be the largest Hull-Dobell coefficient which satisfies this constraint,
 where Hull-Dobell constraints are used for selecting LCG coefficients.
 
