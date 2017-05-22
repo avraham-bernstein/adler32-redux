@@ -20,7 +20,7 @@
 # REVISIONS:
 #    a commercial guarantee then please contact me.
 # REVISIONS:
-# 2017-05-22: 1.0.0: AB: original
+# 2017-05-22: 1.0.0: AB: new
 ################################################################################
 
 .SUFFIXES :
