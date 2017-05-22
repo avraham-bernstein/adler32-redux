@@ -1,5 +1,5 @@
 /*
-FILE: ayb-adler.c
+FILE: aybern-adler.c
 DESCRIP: Alder32 Redux.
   The funcs in this file are my Avraham Y. Bernstein (AYBern) tweaks of the
   original https://en.wikipedia.org/wiki/Adler-32 hash sum algorithm invented by
@@ -65,7 +65,7 @@ NAMING CONVENTION:
   In order not to conflict with the namespace of the famous cryptographer,
   Daniel J. Bernstein, whose algorithm names typically start with djb or djbern,
   I have chosen the prefix "AYBern".
-DATE: 2017-05-22T08:26:00Z
+DATE: 2017-05-22T12:20:00Z
 AUTHOR: Avraham DOT Bernstein AT gmail
 COPYRIGHT (c) 2017 Avraham Bernstein, Jerusalem ISRAEL. All rights reserved.
 LICENSE: Apache License, Version 2.0: https://opensource.org/licenses/Apache-2.0
@@ -79,7 +79,7 @@ LICENSE: Apache License, Version 2.0: https://opensource.org/licenses/Apache-2.0
   If you would like me to provide you with an industrial strength version with
   a commercial guarantee then please contact me.
 REVISIONS:
-2017-05-22: 1.0.0: AB: new
+2017-05-22: 1.0.0: AB: orig
 */
 
 #include <stdint.h>
@@ -96,6 +96,8 @@ REVISIONS:
 #else
 #define INLINE static inline
 #endif
+
+#include "ayb-adler.h"
 
 /*
   The Xoroshiro128Plus_next() function that immediately follows was written in
@@ -201,8 +203,8 @@ static uint64_t SplitMix_next(uint64_t x)
   return z ^ (z >> 31);
 }
 
-GCC_ATTRIB(nothrow,nonnull,pure)
-uint32_t Adler32(const uint8_t * msg, uint32_t n)
+GCC_ATTRIB(nothrow,nonnull,unused,pure)
+static uint32_t Adler32(const uint8_t * msg, uint32_t n)
 {
   // This is the basic concept behind Adler32. It is *not* an exact copy of his algorithm.
   // This version is one that is useful for comparison purposes with the new algorithms.
