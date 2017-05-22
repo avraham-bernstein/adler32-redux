@@ -1,5 +1,5 @@
 /*
-FILE: aybern-adler.c
+FILE: ayb-adler.c
 DESCRIP: Alder32 Redux.
   The funcs in this file are my Avraham Y. Bernstein (AYBern) tweaks of the
   original https://en.wikipedia.org/wiki/Adler-32 hash sum algorithm invented by
