@@ -71,13 +71,14 @@ upon using good security practices, i.e. guarding the IV, and using random seeds
 ## Source Code Naming Convention
 
 In order not to conflict with the namespace of the famous cryptographer,
-Daniel J. Bernstein, whose algorithm names typically start with djb or djbern,
+[Daniel J. Bernstein](https://en.wikipedia.org/wiki/Daniel_J._Bernstein),
+whose algorithm names typically start with "djb" or "djbern",
 I have chosen the prefix "AYBern", and sometimes "ayb".
 
 ## --
 <address>
 <br>AUTHOR: Avraham DOT Bernstein AT gmail
-<br>DATE: 2017-05-22
+<br>DATE: 2017-05-22T12:02:00Z
 <br>Copyright (c) Avraham Bernstein, Jerusalem ISRAEL. All rights reserved.
 <br>LICENSE: Apache License, Version 2.0: https://opensource.org/licenses/Apache-2.0
 </address>
