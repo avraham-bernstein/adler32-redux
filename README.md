@@ -1,6 +1,6 @@
 # README.md: Alder32 Redux Project
 
-This C project is my tweak of the original [Adler32](https://en.wikipedia.org/wiki/Adler-32)
+This mini-C project is my tweak of the original [Adler32](https://en.wikipedia.org/wiki/Adler-32)
 hash sum algorithm invented by Mark Adler in 1995.
 Even though Alder32 is still commonly (?) used,
 it has absolutely ZERO cryptographic strength!
