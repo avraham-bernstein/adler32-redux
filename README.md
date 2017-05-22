@@ -1,6 +1,6 @@
 # README.md: Alder32 Redux Project
 
-This C mini-project is my tweak of the original [Adler32](https://en.wikipedia.org/wiki/Adler-32)
+This C project is my tweak of the original [Adler32](https://en.wikipedia.org/wiki/Adler-32)
 hash sum algorithm invented by Mark Adler in 1995.
 Even though Alder32 is still commonly (?) used,
 it has absolutely ZERO cryptographic strength!
@@ -16,8 +16,8 @@ Here is the *core* of the Adler32 algorithm. Given a message of n bytes,
 uint32_t sum = x1*1 + x2*2 + x3*3 + ... + xn*n
 ```
 
-Adler32's advantage is that it is extremely fast to compute. But it has the
-following 3 fundamental flaws:
+Adler32's advantage is that it is extremely fast to compute, and it is order
+dependent. But it has the following 3 fundamental flaws:
 
 1. For short messages, less than 4K bytes, its bit spread/coverage is
 extremely poor, i.e. the sum that is computes does not use up all the
@@ -68,6 +68,75 @@ variation is based upon the cryptographic strength of the cipher that we choose
 to incorporate inside it. And of course the security level is highly dependent
 upon using good security practices, i.e. guarding the IV, and using random seeds.
 
+## The solution incorporated the following 4 elements:
+
+1. In each block, bits were evenly spread over the whole 2^N space using an
+[Linear Congruential Generation (LCG)](https://en.wikipedia.org/wiki/Linear_congruential_generator)
+transformation where the multiplicative coefficient "a" was calculated on-the-fly
+and block length dependent. (See details below).
+
+2. Block chaining was order dependent.
+
+3. Bit diffusion was achieved by using the highly efficient off-the-shelf bit mixer
+"SplitMix" for the 64 bit version, and a home brew mixer for the 32-bit version.
+
+4. Anti-tampering protection was accomplished via the stream cipher.
+
+### Bit Spread Algorithm
+
+Let's analyze the core algorithm again (in 32-bit space):
+
+```C
+uint32_t sum = x1*1 + x2*2 + x3*3 + ... + xn*n
+```
+
+In the case where the x's are bytes then the expected value of the sum is:
+
+```C
+sum = 0x80 * n * (n+1) / 2
+```
+
+which reduces to
+
+```C
+sum = 0x40 * n * (n+1)
+```
+
+We would like the expected value of sum to be 2^33 so it completely wraps once.
+If the expected value were 2^32 then the bits would be binomially distributed,
+whereas 2^33 generates a uniform distribution. Therefore the ideal block size "n"
+can be calculated as follows:
+
+```C
+(1 << 27) = n * (n+1)
+```
+
+For algorithmic simplicity (in order to use bit masking techniques), we will
+define the ideal block size at 2^13 bytes.
+
+
+In the case where the block size n < 2^13, we need to find a Kn that will
+evenly spread the bits such that
+```C
+(1 << 27) = Kn * n * (n+1)
+```
+
+This reduces to:
+
+```C
+Kn <= (1 << 27) / (n*(n+1))
+```
+
+In order to not lose any bit precision during the multiplication process, Kn
+should be the largest Hull-Dobell coefficient which satisfies this constraint,
+where Hull-Dobell constraints are used for selecting LCG coefficients.
+
+```C
+uint32_t lcg_a = (1 << 27) / (n*(n+1));
+uint32_t hd_delta = (lcg_a - 1) % 4;
+if (hd_delta) lcg_a -= hd_delta;
+```
+
 ## Source Code Naming Convention
 
 In order not to conflict with the namespace of the famous cryptographer,
@@ -78,7 +147,7 @@ I have chosen the prefix "AYBern", and sometimes "ayb".
 ## --
 <address>
 <br>AUTHOR: Avraham DOT Bernstein AT gmail
-<br>DATE: 2017-05-22T12:05:00Z
+<br>DATE: 2017-05-22T18:46:00Z
 <br>Copyright (c) Avraham Bernstein, Jerusalem ISRAEL. All rights reserved.
 <br>LICENSE: Apache License, Version 2.0: https://opensource.org/licenses/Apache-2.0
 </address>
