@@ -79,7 +79,7 @@ LICENSE: Apache License, Version 2.0: https://opensource.org/licenses/Apache-2.0
   If you would like me to provide you with an industrial strength version with
   a commercial guarantee then please contact me.
 REVISIONS:
-2017-05-22: 1.0.0: AB: orig
+2017-05-22: 1.0.0: AB: new
 */
 
 #include <stdint.h>
