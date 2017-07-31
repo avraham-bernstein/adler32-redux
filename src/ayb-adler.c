@@ -245,7 +245,7 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
   uint32_t last_lcg_a = lcg_a;
   if (last_block_len) {
     last_lcg_a = (1 << shift)/(last_block_len * (last_block_len + 1));
-    // Satisfy Hull-Dobell constraint
+    // satisfy Hull-Dobell multiplier constraint
     uint32_t hd_remainder = (last_lcg_a - 1) & 3;
     if (hd_remainder) last_lcg_a -= hd_remainder;
   }
@@ -264,7 +264,7 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
     uint32_t adler_sum = 0;
 
     for (i = 0; i < len; ++i) {
-        adler_sum += (i+1) * msg[i+k];
+        adler_sum += (i+1) * msg[i+k]; // retain original adler32 speed and simplicity
     }
 
     // lcg: params selected to evenly spread the bits over the whole 2^32 space
@@ -273,12 +273,12 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
     if (lcg_a == 1) {
         lcg += adler_sum;
     } else {
-        lcg += adler_sum * lcg_a;
+        lcg += adler_sum * lcg_a; // spread the bits for smaller block sizes
     }
 
     // block chain with order dependencies
 
-    hash_code ^= (j & 1) ? ~lcg : lcg; // block order dependency
+    hash_code ^= (j & 1) ? ~lcg : lcg; // block order dependency by using j
 
     // mix: "roll my own" mixer because SplitMix doesn't handle 32 bits
 
@@ -291,8 +291,8 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
     uint16_t lo = hash_code & 0xffff;
     uint16_t hi = hash_code >> 16;
 
-    uint16_t lo_shift = (hi + (uint16_t)j) & 0xf; // block order dependency
-    uint16_t hi_shift = (lo + (uint16_t)~j) & 0xf; // block order dependency
+    uint16_t lo_shift = (hi + (uint16_t)j) & 0xf; // block order dependency by using j
+    uint16_t hi_shift = (lo + (uint16_t)~j) & 0xf; // block order dependency by using j
 
     hi = rotl16(hi, (int16_t)hi_shift);
     lo = rotl16(lo, (int16_t)lo_shift);
@@ -328,7 +328,7 @@ uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n)
   // all blocks except the last, are by definition full size so their lcg_a = 1
   if (last_block_len) {
     last_lcg_a = (UINT64_C(1) << shift)/((uint64_t)last_block_len * (last_block_len + 1));
-    // Satisfy Hull-Dobell constraint
+    // satisfy Hull-Dobell multiplier constraint
     uint64_t hd_remainder = (last_lcg_a - 1) & 3;
     if (hd_remainder) last_lcg_a -= hd_remainder;
   }
@@ -347,7 +347,7 @@ uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n)
     uint64_t adler_sum = 0;
 
     for (i = 0; i < len; ++i) {
-      adler_sum += (uint64_t)(i+1) * (uint64_t)msg[i+k];
+      adler_sum += (uint64_t)(i+1) * (uint64_t)msg[i+k]; // retain original adler32 speed and simplicity
     }
 
     // lcg: params selected to evenly spread the bits over the whole 2^64 space
@@ -356,7 +356,7 @@ uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n)
     if (lcg_a == UINT64_C(1)) {
         lcg += adler_sum;
     } else {
-        lcg += adler_sum * lcg_a;
+        lcg += adler_sum * lcg_a; // spread the bits for smaller block sizes
     }
 
     // block chain with order dependencies
@@ -365,7 +365,7 @@ uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n)
 
     // mix: SplitMix is a fanatastic mixer - without being heavy
 
-    hash_code = SplitMix_next(hash_code + (uint64_t)j); // block order dependency
+    hash_code = SplitMix_next(hash_code + (uint64_t)j); // block order dependency by using j
   } // block loop: end
 
   return hash_code;
@@ -389,7 +389,7 @@ uint64_t AYBern_adlerHashCipherXorshift128_64(const uint32_t * msg, uint32_t n, 
   uint64_t last_lcg_a = lcg_a;
   if (last_block_len) {
     last_lcg_a = (UINT64_C(1) << shift)/((uint64_t)last_block_len * (last_block_len + 1));
-    // Satisfy Hull-Dobell constraint
+    // satisfy Hull-Dobell multiplier constraint
     uint64_t hd_remainder = (last_lcg_a - 1) & 3;
     if (hd_remainder) last_lcg_a -= hd_remainder;
   }
@@ -421,10 +421,10 @@ uint64_t AYBern_adlerHashCipherXorshift128_64(const uint32_t * msg, uint32_t n, 
       parity = 1 - parity;
 
       if (parity == 0) {
-        un.r64 = Xoroshiro128Plus_next(s);
+        un.r64 = Xoroshiro128Plus_next(s); // prepare 64-bit mask from PRNG to be used similar to a stream cipher
       }
 
-      adler_sum += (uint64_t)(i+1) * (uint64_t)(msg[i+k] ^ un.r32[parity]);
+      adler_sum += (uint64_t)(i+1) * (uint64_t)(msg[i+k] ^ un.r32[parity]); // apply PRNG mask 32 bits at a time
     }
 
     // lcg
@@ -442,7 +442,7 @@ uint64_t AYBern_adlerHashCipherXorshift128_64(const uint32_t * msg, uint32_t n, 
 
     // mix
 
-    hash_code = SplitMix_next(hash_code + (uint64_t)j); // block order dependency
+    hash_code = SplitMix_next(hash_code + (uint64_t)j); // block order dependency by using j
   } // block loop: end
 
   return hash_code;
