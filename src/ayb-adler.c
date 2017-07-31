@@ -80,6 +80,7 @@ LICENSE: Apache License, Version 2.0: https://opensource.org/licenses/Apache-2.0
   a commercial guarantee then please contact me.
 REVISIONS:
 2017-05-22: 1.0.0: AB: new
+2017-07-31: 1.0.1: AB: minor documenation update
 */
 
 #include <stdint.h>
@@ -251,7 +252,7 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
 
   uint32_t i,j,k;
 
-  for (j=0, k=0; j < n_blocks; ++j, k+=block_len) {
+  for (j=0, k=0; j < n_blocks; ++j, k+=block_len) { // block loop: begin
 
     if (j == (n_blocks - 1)) {
       if (last_block_len) {
@@ -277,7 +278,7 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
 
     // block chain with order dependencies
 
-    hash_code ^= (j & 1) ? ~lcg : lcg;
+    hash_code ^= (j & 1) ? ~lcg : lcg; // block order dependency
 
     // mix: "roll my own" mixer because SplitMix doesn't handle 32 bits
 
@@ -290,8 +291,8 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
     uint16_t lo = hash_code & 0xffff;
     uint16_t hi = hash_code >> 16;
 
-    uint16_t lo_shift = (hi + (uint16_t)j) & 0xf; // order dependencies
-    uint16_t hi_shift = (lo + (uint16_t)~j) & 0xf; // order dependencies
+    uint16_t lo_shift = (hi + (uint16_t)j) & 0xf; // block order dependency
+    uint16_t hi_shift = (lo + (uint16_t)~j) & 0xf; // block order dependency
 
     hi = rotl16(hi, (int16_t)hi_shift);
     lo = rotl16(lo, (int16_t)lo_shift);
@@ -299,7 +300,7 @@ uint32_t AYBern_adlerHash32(const uint16_t * msg, uint32_t n)
     // put humpty dumpty back together again
 
     hash_code = (uint32_t)lo | (uint32_t)(hi << 16);
-  }
+  } // block loop: end
 
   return hash_code;
 }
@@ -334,7 +335,7 @@ uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n)
 
   uint32_t i,j,k;
 
-  for (j=0, k=0; j < n_blocks; ++j, k+=block_len) {
+  for (j=0, k=0; j < n_blocks; ++j, k+=block_len) { // block loop: begin
 
     if (j == (n_blocks - 1)) {
       if (last_block_len) {
@@ -364,8 +365,8 @@ uint64_t AYBern_adlerHash64(const uint32_t * msg, uint32_t n)
 
     // mix: SplitMix is a fanatastic mixer - without being heavy
 
-    hash_code = SplitMix_next(hash_code + (uint64_t)j); // order dependency
-  }
+    hash_code = SplitMix_next(hash_code + (uint64_t)j); // block order dependency
+  } // block loop: end
 
   return hash_code;
 }
@@ -403,7 +404,7 @@ uint64_t AYBern_adlerHashCipherXorshift128_64(const uint32_t * msg, uint32_t n, 
 
   uint32_t i,j,k;
 
-  for (k=0, j=0; j < n_blocks; ++j, k+=block_len) {
+  for (k=0, j=0; j < n_blocks; ++j, k+=block_len) { // block loop: begin
 
     if (j == (n_blocks - 1)) {
       if (last_block_len) {
@@ -441,8 +442,8 @@ uint64_t AYBern_adlerHashCipherXorshift128_64(const uint32_t * msg, uint32_t n, 
 
     // mix
 
-    hash_code = SplitMix_next(hash_code + (uint64_t)j);
-  }
+    hash_code = SplitMix_next(hash_code + (uint64_t)j); // block order dependency
+  } // block loop: end
 
   return hash_code;
 }
